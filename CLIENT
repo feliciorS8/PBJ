@@ -1,0 +1,60 @@
+import socket
+import threading
+import sys
+
+# Konfigurasi client
+SERVER_HOST = "127.0.0.1"  # Ganti dengan IP server jika terhubung dari jarak jauh
+SERVER_PORT = 5002
+separator_token = "<SEP>"
+
+# Inisialisasi socket
+s = socket.socket()
+print(f"[*] Menghubungkan ke {SERVER_HOST}:{SERVER_PORT}...")
+try:
+    s.connect((SERVER_HOST, SERVER_PORT))
+    print("[+] Terhubung.")
+except Exception as e:
+    print(f"[!] Error koneksi: {e}")
+    sys.exit()
+
+# Mendapatkan nama pengguna
+username = input("Masukkan nama pengguna Anda: ")
+
+# Fungsi untuk mendengarkan pesan dari server
+def listen_for_messages():
+    while True:
+        try:
+            message = s.recv(1024).decode()
+            print("\n" + message)
+        except Exception as e:
+            print(f"[!] Error menerima pesan: {e}")
+            break
+
+# Memulai thread untuk mendengarkan pesan
+t = threading.Thread(target=listen_for_messages)
+# Membuat thread menjadi daemon sehingga berakhir ketika thread utama berakhir
+t.daemon = True
+t.start()
+
+# Loop utama untuk mengirim pesan
+while True:
+    try:
+        # Mendapatkan pesan untuk dikirim
+        to_send = input()
+        
+        # Jika pesan kosong, lanjutkan
+        if to_send.strip() == '':
+            continue
+        
+        # Menambahkan nama pengguna ke pesan dan mengirim
+        to_send = f"{username}{separator_token}{to_send}"
+        s.send(to_send.encode())
+        
+    except KeyboardInterrupt:
+        print("\n[*] Memutuskan koneksi dari server...")
+        s.close()
+        break
+    except Exception as e:
+        print(f"[!] Error mengirim pesan: {e}")
+        s.close()
+        break
