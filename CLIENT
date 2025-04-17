@@ -1,9 +1,10 @@
+
 import socket
 import threading
 import sys
 
 # Konfigurasi client
-SERVER_HOST = "127.0.0.1"  # Ganti dengan IP server jika terhubung dari jarak jauh
+SERVER_HOST = "172.20.10.2"  # Ganti dengan IP server jika terhubung dari jarak jauh
 SERVER_PORT = 5002
 separator_token = "<SEP>"
 
